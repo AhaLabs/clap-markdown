@@ -1,3 +1,4 @@
+#![allow(clippy::only_used_in_recursion)]
 //! Autogenerate Markdown documentation for clap command-line tools
 //!
 //! See [**Examples**][Examples] for examples of the content `clap-markdown`
@@ -311,9 +312,7 @@ fn build_command_markdown(
 
     writeln!(
         buffer,
-        "{} `{}`\n",
-        // "#".repeat(depth + 1),
-        "##",
+        "## `{}`\n",
         command_path.join(" "),
     )?;
 
