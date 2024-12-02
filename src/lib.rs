@@ -459,9 +459,9 @@ fn write_arg_markdown(buffer: &mut String, arg: &clap::Arg) -> fmt::Result {
         },
         (None, Some(long)) => {
             if arg.get_action().takes_values() {
-                write!(buffer, "`--{} <{value_name}>`", long)?
+                write!(buffer, "`--{long} <{value_name}>`")?
             } else {
-                write!(buffer, "`--{}`", long)?
+                write!(buffer, "`--{long}`")?
             }
         },
         (None, None) => {
@@ -469,6 +469,18 @@ fn write_arg_markdown(buffer: &mut String, arg: &clap::Arg) -> fmt::Result {
 
             write!(buffer, "`<{value_name}>`",)?;
         },
+    }
+
+    if let Some(aliases) = arg.get_visible_aliases() {
+        if !aliases.is_empty() {
+            write!(buffer, " Aliases: ")?;
+            for (i, alias) in aliases.into_iter().enumerate() {
+                if i > 0 {
+                    write!(buffer, ", ")?;
+                }
+                write!(buffer, "`{alias}`")?;
+            }
+        }
     }
 
     if let Some(help) = arg.get_long_help() {

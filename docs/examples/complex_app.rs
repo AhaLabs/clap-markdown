@@ -12,7 +12,7 @@ pub struct Cli {
     name: Option<String>,
 
     /// Sets a custom config file
-    #[arg(short, long, value_name = "FILE")]
+    #[arg(short, long, value_name = "FILE", visible_alias = "configuration")]
     config: Option<PathBuf>,
 
     #[arg(long, default_value = "local")]
