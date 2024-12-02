@@ -8,6 +8,7 @@
 
 // Ensure that doc tests in the README.md file get run.
 #[doc(hidden)]
+#[allow(clippy::mixed_attributes_style)]
 mod test_readme {
     #![doc = include_str!("../README.md")]
 }
@@ -33,38 +34,38 @@ pub struct MarkdownOptions {
 impl MarkdownOptions {
     /// Construct a default instance of `MarkdownOptions`.
     pub fn new() -> Self {
-        return Self {
+        Self {
             title: None,
             show_footer: true,
             show_table_of_contents: true,
-        };
+        }
     }
 
     /// Set a custom title to use in the generated document.
     pub fn title(mut self, title: String) -> Self {
         self.title = Some(title);
 
-        return self;
+        self
     }
 
     /// Whether to show the default footer advertising `clap-markdown`.
     pub fn show_footer(mut self, show: bool) -> Self {
         self.show_footer = show;
 
-        return self;
+        self
     }
 
     /// Whether to show the default table of contents.
     pub fn show_table_of_contents(mut self, show: bool) -> Self {
         self.show_table_of_contents = show;
 
-        return self;
+        self
     }
 }
 
 impl Default for MarkdownOptions {
     fn default() -> Self {
-        return Self::new();
+        Self::new()
     }
 }
 
@@ -85,12 +86,12 @@ pub fn help_markdown_custom<C: clap::CommandFactory>(
 ) -> String {
     let command = C::command();
 
-    return help_markdown_command_custom(&command, options);
+    help_markdown_command_custom(&command, options)
 }
 
 /// Format the help information for `command` as Markdown.
 pub fn help_markdown_command(command: &clap::Command) -> String {
-    return help_markdown_command_custom(command, &Default::default());
+    help_markdown_command_custom(command, &Default::default())
 }
 
 /// Format the help information for `command` as Markdown, with custom options.
@@ -100,7 +101,7 @@ pub fn help_markdown_command_custom(
 ) -> String {
     let mut buffer = String::with_capacity(100);
 
-    write_help_markdown(&mut buffer, &command, options);
+    write_help_markdown(&mut buffer, command, options);
 
     buffer
 }
@@ -159,7 +160,7 @@ fn write_help_markdown(
         build_table_of_contents_markdown(buffer, Vec::new(), command, 0)
             .unwrap();
 
-        write!(buffer, "\n").unwrap();
+        writeln!(buffer).unwrap();
     }
 
     //----------------------------------------
@@ -335,7 +336,7 @@ fn build_command_markdown(
             String::new()
         } else {
             let mut s = parent_command_path.join(" ");
-            s.push_str(" ");
+            s.push(' ');
             s
         },
         command
@@ -373,7 +374,7 @@ fn build_command_markdown(
             writeln!(buffer, "* `{title_name}` — {about}",)?;
         }
 
-        write!(buffer, "\n")?;
+        writeln!(buffer)?;
     }
 
     //----------------------------------
@@ -387,7 +388,7 @@ fn build_command_markdown(
             write_arg_markdown(buffer, pos_arg)?;
         }
 
-        write!(buffer, "\n")?;
+        writeln!(buffer)?;
     }
 
     //----------------------------------
@@ -406,7 +407,7 @@ fn build_command_markdown(
             write_arg_markdown(buffer, arg)?;
         }
 
-        write!(buffer, "\n")?;
+        writeln!(buffer)?
     }
 
     //----------------------------------
