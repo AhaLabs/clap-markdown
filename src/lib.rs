@@ -309,12 +309,12 @@ fn build_command_markdown(
         )
     }
     */
+    let aliases = command.get_visible_aliases().collect::<Vec<&str>>();
+    let aliases = get_alias_str(&aliases)
+        .map(|s| format!(" {s}"))
+        .unwrap_or_default();
 
-    writeln!(
-        buffer,
-        "## `{}`\n",
-        command_path.join(" "),
-    )?;
+    writeln!(buffer, "## `{}`{aliases}\n", command_path.join(" "),)?;
 
     if let Some(long_about) = command.get_long_about() {
         writeln!(buffer, "{}\n", long_about)?;
@@ -364,13 +364,17 @@ fn build_command_markdown(
             }
 
             let title_name = get_canonical_name(subcommand);
+            let aliases = subcommand.get_visible_aliases().collect::<Vec<&str>>();
+            let aliases = get_alias_str(&aliases)
+                .map(|s| format!(" {s}"))
+                .unwrap_or_default();
 
             let about = match subcommand.get_about() {
                 Some(about) => about.to_string(),
                 None => String::new(),
             };
 
-            writeln!(buffer, "* `{title_name}` — {about}",)?;
+            writeln!(buffer, "* `{title_name}`{aliases} — {about}",)?;
         }
 
         writeln!(buffer)?;
@@ -459,9 +463,9 @@ fn write_arg_markdown(buffer: &mut String, arg: &clap::Arg) -> fmt::Result {
         },
         (None, Some(long)) => {
             if arg.get_action().takes_values() {
-                write!(buffer, "`--{} <{value_name}>`", long)?
+                write!(buffer, "`--{long} <{value_name}>`")?
             } else {
-                write!(buffer, "`--{}`", long)?
+                write!(buffer, "`--{long}`")?
             }
         },
         (None, None) => {
@@ -469,6 +473,12 @@ fn write_arg_markdown(buffer: &mut String, arg: &clap::Arg) -> fmt::Result {
 
             write!(buffer, "`<{value_name}>`",)?;
         },
+    }
+
+    if let Some(aliases) = arg.get_visible_aliases().as_deref() {
+        if let Some(aliases) = get_alias_str(aliases) {
+            write!(buffer, " {aliases}")?;
+        }
     }
 
     if let Some(help) = arg.get_long_help() {
@@ -595,6 +605,35 @@ fn indent(s: &str, first: &str, rest: &str) -> String {
         result.push('\n');
     }
     result
+}
+
+fn wrap_with(s: &str, wrapper: &str) -> String {
+    format!("{wrapper}{s}{wrapper}")
+}
+
+fn wrap_with_backticks(s: &str) -> String {
+    wrap_with(s, "`")
+}
+
+fn get_alias_str(aliases: &[&str]) -> Option<String> {
+    if aliases.is_empty() {
+        return None;
+    }
+
+    let prefix = if aliases.len() == 1 {
+        "alias"
+    } else {
+        "aliases"
+    };
+
+    Some(format!(
+        "[{prefix}: {}]",
+        aliases
+            .iter()
+            .map(|s| wrap_with_backticks(s))
+            .collect::<Vec<_>>()
+            .join(", ")
+    ))
 }
 
 #[cfg(test)]
